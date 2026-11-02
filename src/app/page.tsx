@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Leaf, Recycle, Gift, ArrowRight } from "lucide-react";
 import { Bricolage_Grotesque, Poppins, Outfit } from "next/font/google";
 
@@ -98,15 +96,10 @@ function BottleIllustration() {
 }
 
 export default function Home() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const register = searchParams.get("register");
-    if (register === "true") {
-      router.push("/auth");
-    }
-  }, [searchParams, router]);
+  // Catatan: logika redirect "?register=true" sengaja DIHAPUS.
+  // Tombol "Daftar" sudah langsung mengarah ke /auth?register=true,
+  // sehingga useEffect + useSearchParams tidak pernah terpakai dan
+  // justru memicu error prerender saat `next build` (deploy Vercel).
 
   /* Scroll halus ke bagian card */
   const scrollToCards = () => {
