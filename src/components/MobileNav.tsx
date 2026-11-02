@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
+import { createClient } from "@/lib/supabase";
 
 export interface MobileNavItem {
   href: string;
@@ -30,7 +31,22 @@ export default function MobileNav({
 }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
   const dark = variant === "dark";
+
+  // Logout client-side Supabase: akhiri sesi lalu kembali ke /auth.
+  // Tidak pakai <form> sama sekali -> tidak ada submit -> dialog iOS hilang.
+  const handleLogout = async () => {
+    setOpen(false);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // abaikan glitch jaringan; tetap keluar dari UI
+    }
+    router.push("/auth");
+    router.refresh();
+  };
 
   return (
     <>
@@ -70,6 +86,7 @@ export default function MobileNav({
           </div>
         </div>
         <button
+          type="button"
           onClick={() => setOpen(true)}
           className={`p-2 rounded-xl transition-colors ${
             dark
@@ -128,6 +145,7 @@ export default function MobileNav({
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setOpen(false)}
             className={`p-2 rounded-xl transition-colors ${
               dark
@@ -190,19 +208,19 @@ export default function MobileNav({
             </div>
           </div>
 
-          <form action="/auth/logout" method="POST">
-            <button
-              type="submit"
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium ${
-                dark
-                  ? "bg-white/10 text-white hover:bg-white/20"
-                  : "text-coral hover:bg-coral/10"
-              }`}
-            >
-              <LogOut size={20} />
-              <span>Keluar</span>
-            </button>
-          </form>
+          {/* TANPA <form>: tombol biasa type="button" -> tidak submit -> dialog iOS lenyap */}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium ${
+              dark
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "text-coral hover:bg-coral/10"
+            }`}
+          >
+            <LogOut size={20} />
+            <span>Keluar</span>
+          </button>
         </div>
       </aside>
     </>
