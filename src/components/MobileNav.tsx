@@ -44,8 +44,7 @@ export default function MobileNav({
     } catch {
       // abaikan glitch jaringan; tetap keluar dari UI
     }
-    router.push("/auth");
-    router.refresh();
+    router.push("/");
   };
 
   return (
